@@ -90,9 +90,6 @@ describe("app.js", () => {
             .then(({body}) => {
             expect(body.articles).toHaveLength(13)
             body.articles.forEach((article) => {
-                const matchingComments = testData.commentData.filter((comment) => {
-                    return comment.article_id === article.article_id
-                })
                 expect(article).toEqual(expect.objectContaining({
                     author: expect.any(String),
                     title : expect.any(String),
@@ -127,10 +124,12 @@ describe("app.js", () => {
             return request(app).get('/api/articles')
             .expect(200)
             .then(({body}) => {
-                expect(body.articles[0]).toEqual(expect.objectContaining({
-                    article_id : 3,
-                    comment_count : 2
-                }))
+                body.articles.forEach((article) => {
+                    const matchingComments = testData.commentData.filter((comment) => {
+                        return comment.article_id === article.article_id
+                    })
+                    expect(article.comment_count).toEqual(matchingComments.length)
+                })
             })
         })
     })
