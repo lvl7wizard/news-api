@@ -56,7 +56,6 @@ describe("app.js", () => {
             return request(app).get('/api/articles/1')
             .expect(200)
             .then(({body}) => {
-                    console.log(body)
                     expect(body.article).toEqual(expect.objectContaining({
                         author: expect.any(String),
                         title : expect.any(String),
@@ -81,6 +80,57 @@ describe("app.js", () => {
             .expect(400)
             .then(({body}) => {
                 expect(body.msg).toEqual("Bad Request - article_id must be a number")
+            })
+        })
+    })
+    describe("GET /api/articles", () => {
+        test("responds with an array of all the articles", () => {
+            return request(app).get('/api/articles')
+            .expect(200)
+            .then(({body}) => {
+            expect(body.articles).toHaveLength(13)
+            body.articles.forEach((article) => {
+                const matchingComments = testData.commentData.filter((comment) => {
+                    return comment.article_id === article.article_id
+                })
+                expect(article).toEqual(expect.objectContaining({
+                    author: expect.any(String),
+                    title : expect.any(String),
+                    article_id : expect.any(Number),
+                    topic : expect.any(String),
+                    created_at : expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String)
+                }))    
+            })
+            })
+        })
+        test("articles should not have a body property", () => {
+            return request(app).get('/api/articles')
+            .expect(200)
+            .then(({body}) => {
+                body.articles.forEach((article) => {
+                    expect(article).toEqual(expect.not.objectContaining({
+                        body : expect.any(String)
+                    }))
+                })
+            })
+        })
+        test("array should be sorted by date in descending order by default", () => {
+            return request(app).get('/api/articles')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toBeSortedBy('created_at', {descending: true})
+            })
+        })
+        test("each object should have a comment_count property which reflects the number of comments which have a matching article_id", () => {
+            return request(app).get('/api/articles')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles[0]).toEqual(expect.objectContaining({
+                    article_id : 3,
+                    comment_count : 2
+                }))
             })
         })
     })
