@@ -1,15 +1,18 @@
 const express = require('express');
 const app = express();
-const { getTopics } = require('./controllers/news.controllers')
-
-// endpoints
+const { getTopics, getEndpoints } = require('./controllers/news.controllers')
 
 app.get('/api/topics', getTopics);
+app.get('/api', getEndpoints)
 
-// error handling
+
+
 app.use((err, req, res, next) => {
-        // console.log(err)
-        res.status(500).send({msg: "Internal Server Error"})
+        res.status(500).send({msg: "Internal server error"})
+})
+
+app.use((req, res, next) => {
+    res.status(404).send({msg: "Endpoint does not exist"})
 })
 
 module.exports = app

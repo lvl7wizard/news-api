@@ -1,4 +1,4 @@
-const { fetchTopics } = require('../models/news.models')
+const { fetchTopics, fetchEndpoints } = require('../models/news.models')
 
 exports.getTopics = async (req, res, next) => {
     try {
@@ -7,6 +7,15 @@ exports.getTopics = async (req, res, next) => {
     }
     catch(err) {
         next(err)
-        console.log(err)
+    }
+}
+
+exports.getEndpoints = async (req, res, next) => {
+    try {
+        const endpoints = await fetchEndpoints()
+        res.status(200).send({endpoints: endpoints})
+    }
+    catch(err) {
+        next(err)
     }
 }
