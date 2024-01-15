@@ -37,7 +37,7 @@ describe("app.js", () => {
             return request(app).get('/api/wrongpath')
             .expect(404)
             .then(({body}) => {
-                expect(body.msg).toBe("Endpoint does not exist")
+                expect(body.msg).toBe("Bad Request - Endpoint does not exist")
             })
         })
     })
@@ -51,6 +51,38 @@ describe("app.js", () => {
             })
         })
     })
-
+    describe("GET /api/articles/:article_id", () => {
+        test("responds with an object that has all the correct properties when a valid article_id is passed to the endpoint", () => {
+            return request(app).get('/api/articles/1')
+            .expect(200)
+            .then(({body}) => {
+                    console.log(body)
+                    expect(body.article).toEqual(expect.objectContaining({
+                        author: expect.any(String),
+                        title : expect.any(String),
+                        article_id : expect.any(Number),
+                        body : expect.any(String),
+                        topic : expect.any(String),
+                        created_at : expect.any(String),
+                        votes: expect.any(Number),
+                        article_img_url: expect.any(String)
+                    }))
+            })
+        })
+        test("404 - responds with an error when passed a valid article_id number but no articles exist with that id", () => {
+            return request(app).get('/api/articles/7777')
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Not Found - There are no articles with that article_id number")
+            })
+        })
+        test("400 - responds with an error when passed an invalid article_id number i.e. not a number", () => {
+            return request(app).get('/api/articles/notanarticlenumber')
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - article_id must be a number")
+            })
+        })
+    })
 
 })
