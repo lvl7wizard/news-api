@@ -23,7 +23,6 @@ describe("app.js", () => {
             return request(app).get('/api/topics')
             .expect(200)
             .then(({body}) => {
-                console.log(body)
                 body.topics.forEach((topic) => {
                     expect(topic).toEqual(expect.objectContaining({
                         slug: expect.any(String),
