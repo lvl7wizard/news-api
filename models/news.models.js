@@ -21,7 +21,7 @@ exports.fetchArticleById = async (article_id) => {
 
 exports.fetchAllArticles = async () => {
     const articles = await db.query(`
-    SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, CAST(COUNT(articles.article_id) AS INTEGER) AS comment_count
+    SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, COALESCE(CAST(COUNT(comments.article_id) AS INTEGER), 0) AS comment_count
     FROM articles
     LEFT JOIN comments on comments.article_id = articles.article_id
     GROUP BY articles.article_id
