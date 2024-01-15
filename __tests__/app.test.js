@@ -59,7 +59,7 @@ describe("app.js", () => {
                     expect(body.article).toEqual(expect.objectContaining({
                         author: expect.any(String),
                         title : expect.any(String),
-                        article_id : expect.any(Number),
+                        article_id : 1,
                         body : expect.any(String),
                         topic : expect.any(String),
                         created_at : expect.any(String),
