@@ -29,3 +29,11 @@ exports.fetchAllArticles = async () => {
     `)
     return articles.rows
 }
+
+exports.fetchCommentsByArticleId = async (article_id) => {
+    const comments = await db.query(`
+    SELECT * FROM comments WHERE article_id = $1
+    ORDER by created_at DESC
+    `, [article_id])
+    return comments.rows
+}
