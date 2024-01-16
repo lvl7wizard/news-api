@@ -37,3 +37,14 @@ exports.fetchCommentsByArticleId = async (article_id) => {
     `, [article_id])
     return comments.rows
 }
+
+exports.addComment = async (article_id, username, body) => {
+    const comment = await db.query(`
+    INSERT INTO comments
+    (body, author, article_id)
+    VALUES
+    ($1, $2, $3)
+    RETURNING *
+    `, [body, username, article_id])
+    return comment.rows[0]
+}

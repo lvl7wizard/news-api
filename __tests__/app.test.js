@@ -188,5 +188,69 @@ describe("app.js", () => {
             })
         })
     })
+    describe("POST /api/articles/:article_id/comments", () => {
+        test("responds with the posted comment", () => {
+            return request(app).post('/api/articles/2/comments')
+            .send({
+                username: "butter_bridge",
+                body: "Test comment"
+            })
+            .expect(201)
+            .then(({body}) => {
+                console.log(body)
+                expect(body.comment).toEqual(expect.objectContaining({
+                    comment_id: expect.any(Number),
+                    votes: 0,
+                    created_at: expect.any(String),
+                    author: "butter_bridge",
+                    body: "Test comment",
+                    article_id: 2
+                }))
+            })
+        })
+        test("400 - responds with error when an invalid username is given", () => {
+            return request(app).post('/api/articles/2/comments')
+            .send({ 
+                username: "lvl7wizard",
+                body: "A load of hocus pocus"
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - user does not exist")
+            })
+        })
+        test("404 - responds with an error when passed an article_id that does not exist", () => {
+            return request(app).post('/api/articles/7777/comments')
+            .send({ 
+                username: "butter_bridge",
+                body: "Test comment"
+            })
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Not Found - article_id does not exist")
+            })
+        })
+        test("400 - responds with an error when passed an invalid article_id", () => {
+            return request(app).post('/api/articles/notanumber/comments')
+            .send({ 
+                username: "butter_bridge",
+                body: "Test comment"
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - article_id must be a number")
+            })
+        })
+        test("400 - responds with error when a request body with invalid keys is given", () => {
+            return request(app).post('/api/articles/2/comments')
+            .send({ 
+                body: "Test comment"
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - body must contain valid username and body keys")
+            })
+        })
+    })
 
 })
