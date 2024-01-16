@@ -144,7 +144,7 @@ describe("app.js", () => {
             })
         })
         test("all comments should have the correct properties", () => {
-            return request(app).get('/api/articles/1/comments')
+            return request(app).get('/api/articles/6/comments')
             .expect(200)
             .then(({body}) => {
                 body.comments.forEach((comment) => {
