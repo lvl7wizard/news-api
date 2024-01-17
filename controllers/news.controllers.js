@@ -1,5 +1,5 @@
-const { fetchTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, addComment, updateArticle } = require('../models/news.models')
-const { checkArticleIdExists } = require('../utils/utils')
+const { fetchTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, addComment, updateArticle, removeCommentById } = require('../models/news.models')
+const { checkArticleIdExists, checkCommentIdExists } = require('../utils/utils')
 
 exports.getTopics = async (req, res, next) => {
     try {
@@ -75,6 +75,17 @@ exports.patchArticle = async (req, res, next) => {
         const { inc_votes } = req.body
         const article = await updateArticle(article_id, inc_votes)
         res.status(200).send({article: article})
+    }
+    catch(err) {
+        next(err)
+    }
+}
+exports.deleteComment = async (req, res, next) => {
+    try {
+        const { comment_id } = req.params
+        await checkCommentIdExists(comment_id)
+        await removeCommentById(comment_id)
+        res.status(204).send()
     }
     catch(err) {
         next(err)

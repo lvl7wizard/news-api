@@ -62,3 +62,9 @@ exports.updateArticle = async (article_id, inc_votes) => {
     }
     return article.rows[0]
 }
+
+exports.removeCommentById = async (comment_id) => {
+    await db.query(`
+    DELETE FROM comments
+    WHERE comment_id = $1`, [comment_id])
+}

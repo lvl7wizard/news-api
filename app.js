@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const { getTopics, getEndpoints, getArticlesById, getAllArticles, getCommentsByArticleId, postComment, patchArticle } = require('./controllers/news.controllers')
+const { getTopics, getEndpoints, getArticlesById, getAllArticles, getCommentsByArticleId, postComment, patchArticle, deleteComment } = require('./controllers/news.controllers')
 app.use(express.json())
 
 app.get('/api/topics', getTopics);
@@ -10,6 +10,7 @@ app.get('/api/articles/:article_id', getArticlesById);
 app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
 app.post('/api/articles/:article_id/comments', postComment)
 app.patch('/api/articles/:article_id', patchArticle)
+app.delete('/api/comments/:comment_id', deleteComment)
 
 app.all('/*', (req, res) => {
     res.status(404).send({msg: "Not Found - endpoint does not exist"})
@@ -25,7 +26,7 @@ app.use((err, req, res, next) => {
 
 app.use((err, req, res, next) => {
     if (err.code === '22P02') {
-        res.status(400).send({msg: "Bad Request - article_id must be a number"})
+        res.status(400).send({msg: "Bad Request - parametric endpoint must be a number"})
     } else if (err.code === '23503') {
         if (err.constraint === 'comments_author_fkey') {
             res.status(400).send({msg: "Bad Request - user does not exist"})
