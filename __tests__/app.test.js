@@ -79,7 +79,7 @@ describe("app.js", () => {
             return request(app).get('/api/articles/notanarticlenumber')
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toEqual("Bad Request - article_id must be a number")
+                expect(body.msg).toEqual("Bad Request - parametric endpoint must be a number")
             })
         })
     })
@@ -170,7 +170,7 @@ describe("app.js", () => {
             return request(app).get('/api/articles/notanumber/comments')
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toEqual("Bad Request - article_id must be a number")
+                expect(body.msg).toEqual("Bad Request - parametric endpoint must be a number")
             })
         })
         test("404 - responds with an error when passed an article_id that does not exist", () => {
@@ -237,7 +237,7 @@ describe("app.js", () => {
             })
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toEqual("Bad Request - article_id must be a number")
+                expect(body.msg).toEqual("Bad Request - parametric endpoint must be a number")
             })
         })
         test("400 - responds with error when a request body with invalid keys is given", () => {
@@ -296,7 +296,7 @@ describe("app.js", () => {
             })
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toEqual("Bad Request - article_id must be a number")
+                expect(body.msg).toEqual("Bad Request - parametric endpoint must be a number")
             })
         })
         test("400 - responds with an error when a request body with invalid keys is given", () => {
@@ -307,6 +307,45 @@ describe("app.js", () => {
             .expect(400)
             .then(({body}) => {
                 expect(body.msg).toEqual("Bad Request - body must contain a valid inc_votes key")
+            })
+        })
+    })
+    describe("DELETE /api/comments/:comment_id", () => {
+        test("responds with status 204 and no content", () => {
+            return request(app).delete('/api/comments/1')
+            .expect(204)
+            .then(({body}) => {
+                expect(body).toEqual({})
+            })
+        })
+        test("comment is removed from database, all other comments are NOT deleted", () => {
+            return request(app).delete('/api/comments/1')
+            .expect(204)
+            .then(() => {
+                return db.query('SELECT * FROM comments WHERE comment_id = 1')
+                .then(({rows}) => {
+                    expect(rows.length).toBe(0)
+                })
+                .then(() => {
+                    return db.query('SELECT * FROM comments')
+                    .then(({rows}) => {
+                        expect(rows.length).toBe(17)
+                    })
+                })
+            })
+        })
+        test("404 - responds with an error if no comments with a matching comment_id are found", () => {
+            return request(app).delete('/api/comments/7777')
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Not Found - no comments with that comment_id exist")
+            })
+        })
+        test("400 - responds with an error if passed an invalid comment_id i.e not a number", () => {
+            return request(app).delete('/api/comments/notanumber')
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - parametric endpoint must be a number")
             })
         })
     })
