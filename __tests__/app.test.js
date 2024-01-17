@@ -349,5 +349,21 @@ describe("app.js", () => {
             })
         })
     })
-
+    describe("GET /api/users", () => {
+        test("responds with an array of objects. each object should have a username, name, and avatar url property", () => {
+            return request(app).get('/api/users')
+            .expect(200)
+            .then(({body}) => {
+                console.log(body)
+                expect(body.users.length).toEqual(4)
+                body.users.forEach((user) => {
+                    expect(user).toEqual(expect.objectContaining({
+                        username: expect.any(String),
+                        name: expect.any(String),
+                        avatar_url: expect.any(String)
+                    }))
+                })
+            })
+        })
+    })
 })
