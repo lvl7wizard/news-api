@@ -37,7 +37,7 @@ describe("app.js", () => {
             return request(app).get('/api/wrongpath')
             .expect(404)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - Endpoint does not exist")
+                expect(body.msg).toBe("Not Found - endpoint does not exist")
             })
         })
     })
@@ -252,23 +252,31 @@ describe("app.js", () => {
         })
     })
     describe("PATCH /api/articles/:article_id", () => {
-        test("responds with the updated article", () => {
-            return request(app).patch('/api/articles/1')
-            .send({ 
-                inc_votes : 100
+        test("responds with the updated article", async () => {
+           return db.query('SELECT * FROM articles WHERE article_id = 1').then(({rows}) => {
+                return rows[0].votes
             })
-            .expect(200)
-            .then(({body}) => {
-                expect(body.article).toEqual(expect.objectContaining({
-                        author: 'butter_bridge',
-                        title : 'Living in the shadow of a great man',
-                        article_id : 1,
-                        body : 'I find this existence challenging',
-                        topic : 'mitch',
-                        created_at : expect.any(String),
-                        votes: 200,
-                        article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
-                }))
+            .then((originalVotes) => {
+                return request(app).patch('/api/articles/1')
+                .send({ 
+                    inc_votes : 100
+                })
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.article).toEqual(expect.objectContaining({
+                            author: 'butter_bridge',
+                            title : 'Living in the shadow of a great man',
+                            article_id : 1,
+                            body : 'I find this existence challenging',
+                            topic : 'mitch',
+                            created_at : expect.any(String),
+                            votes: originalVotes + 100,
+                            article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+                    }))
+                })
+
+
+
             })
         })
         test("404 - responds with an error if article_id does not exist", () => {
