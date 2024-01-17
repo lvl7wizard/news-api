@@ -133,6 +133,29 @@ describe("app.js", () => {
                 })
             })
         })
+    describe("GET /api/articles?topic=:topic", () => {
+        test("filters articles by the topic value specified in the query", () => {
+            return request(app).get('/api/articles?topic=cats')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles.length).toBe(1)
+            })
+        })
+        test("404 - responds with an error when passed a topic that doesn't exist", () => {
+            return request(app).get('/api/articles?topic=potatoes')
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Not Found - topic does not exist")
+            })
+        })
+        test("responds with an empty array when passed a topic that does exist but no comments exist for it", () => {
+            return request(app).get('/api/articles?topic=paper')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toEqual([])
+            })
+        })
+    })
     })
     describe("GET /api/articles/:article_id/comments", () => {
         test("responds with an array of all comments that have a matching article_id", () => {
@@ -354,7 +377,6 @@ describe("app.js", () => {
             return request(app).get('/api/users')
             .expect(200)
             .then(({body}) => {
-                console.log(body)
                 expect(body.users.length).toEqual(4)
                 body.users.forEach((user) => {
                     expect(user).toEqual(expect.objectContaining({

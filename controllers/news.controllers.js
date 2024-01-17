@@ -1,5 +1,5 @@
-const { fetchTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, fetchUsers, addComment, updateArticle, removeCommentById } = require('../models/news.models')
-const { checkArticleIdExists, checkCommentIdExists } = require('../utils/utils')
+const { fetchTopics, fetchEndpoints, fetchArticleById, fetchArticles, fetchCommentsByArticleId, fetchUsers, addComment, updateArticle, removeCommentById } = require('../models/news.models')
+const { checkArticleIdExists, checkCommentIdExists, checkTopicExists } = require('../utils/utils')
 
 exports.getTopics = async (req, res, next) => {
     try {
@@ -32,9 +32,13 @@ exports.getArticlesById = async (req, res, next) => {
     }
 }
 
-exports.getAllArticles = async (req, res, next) => {
+exports.getArticles = async (req, res, next) => {
     try {
-    const articles = await fetchAllArticles()
+    const { topic } = req.query
+    if (topic) {
+        const topicExists = await checkTopicExists(topic)
+    }
+    const articles = await fetchArticles(topic)
     res.status(200).send({articles: articles})    
     }
     catch(err) {

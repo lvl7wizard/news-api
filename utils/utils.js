@@ -18,3 +18,13 @@ exports.checkCommentIdExists = async (comment_id) => {
         return Promise.reject({status: 404, msg: "Not Found - no comments with that comment_id exist"})
     }
 }
+
+exports.checkTopicExists = async (topic) => {
+    const topicCheck = await db.query(`
+    SELECT * FROM topics
+    WHERE slug = $1
+    `, [topic])
+    if (topicCheck.rows.length === 0) {
+        return Promise.reject({status: 404, msg: "Not Found - topic does not exist"})
+    }
+}
