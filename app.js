@@ -11,6 +11,10 @@ app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
 app.post('/api/articles/:article_id/comments', postComment)
 app.patch('/api/articles/:article_id', patchArticle)
 
+app.all('/*', (req, res) => {
+    res.status(404).send({msg: "Not Found - endpoint does not exist"})
+})
+
 app.use((err, req, res, next) => {
     if (err.status && err.msg) {
         res.status(err.status).send({msg: err.msg})
@@ -45,10 +49,6 @@ app.use((err, req, res, next) => {
 
 app.use((err, req, res, next) => {
         res.status(500).send({msg: "Internal Server Error"})
-})
-
-app.use((req, res, next) => {
-    res.status(404).send({msg: "Bad Request - Endpoint does not exist"})
 })
 
 module.exports = app
