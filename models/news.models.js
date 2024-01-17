@@ -19,14 +19,16 @@ exports.fetchArticleById = async (article_id) => {
     return article.rows[0]
 }
 
-exports.fetchAllArticles = async () => {
-    const articles = await db.query(`
-    SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, COALESCE(CAST(COUNT(comments.article_id) AS INTEGER), 0) AS comment_count
-    FROM articles
-    LEFT JOIN comments on comments.article_id = articles.article_id
-    GROUP BY articles.article_id
-    ORDER BY created_at DESC
-    `)
+exports.fetchArticles = async (topic) => {
+    let queryValues = []
+    let query = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, COALESCE(CAST(COUNT(comments.article_id) AS INTEGER), 0) AS comment_count
+    FROM articles LEFT JOIN comments on comments.article_id = articles.article_id`
+    if (topic) {
+        query += ` WHERE articles.topic = $1`
+        queryValues.push(topic)
+    }
+    query += ` GROUP BY articles.article_id ORDER BY created_at DESC`
+    const articles = await db.query(query, queryValues)
     return articles.rows
 }
 
