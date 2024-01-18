@@ -80,8 +80,32 @@ describe("app.js", () => {
             .expect(400)
             .then(({body}) => {
                 expect(body.msg).toEqual("Bad Request - parametric endpoint must be a number")
+            })    
+        })
+        test("returned object should have a comment_count property which is the total count of all the comments with this article_id", () => {
+            return db.query('SELECT * FROM comments WHERE article_id = 1').then((comments) => {
+                return request(app).get('/api/articles/1')
+                .expect(200)
+                .then(({body}) => {
+                        numberOfComments = comments.rows.length
+                        expect(body.article).toEqual(expect.objectContaining({
+                          comment_count: numberOfComments
+                        }))
+                })
             })
         })
+        test("comment_count should be 0 if the article has no comments", () => {
+            return db.query('SELECT * FROM comments WHERE article_id = 2').then((comments) => {
+                return request(app).get('/api/articles/2')
+                .expect(200)
+                .then(({body}) => {
+                        numberOfComments = comments.rows.length
+                        expect(body.article).toEqual(expect.objectContaining({
+                          comment_count: numberOfComments
+                        }))
+                })
+            })
+        })      
     })
     describe("GET /api/articles", () => {
         test("responds with an array of all the articles", () => {
