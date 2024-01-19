@@ -157,6 +157,95 @@ describe("app.js", () => {
                 })
             })
         })
+    })
+    describe("GET /api/articles?sort_by=:sort_by", () => {
+        test("returned items can be sorted by title (defaults to descending)", () => {
+            return request(app).get('/api/articles?sort_by=title')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(13)
+                body.articles.forEach((article) => {
+                    expect(article).toEqual(expect.objectContaining({
+                        author: expect.any(String),
+                        title : expect.any(String),
+                        article_id : expect.any(Number),
+                        topic : expect.any(String),
+                        created_at : expect.any(String),
+                        votes: expect.any(Number),
+                        article_img_url: expect.any(String),
+                        comment_count: expect.any(Number)
+                    }))    
+                })
+                expect(body.articles).toBeSortedBy('title', {descending: "true"}) 
+            })
+        })
+        test("defaults to be sorted by created_at (default descending)", () => {
+            return request(app).get('/api/articles')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toBeSortedBy('created_at', {descending: "true"})
+            })
+        })
+        test("can be sorted by author (default descending)", () => {
+            return request(app).get('/api/articles?sort_by=author')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toBeSortedBy('author', {descending: "true"})
+            })
+        })
+        test("can be sorted by votes (default descending)", () => {
+            return request(app).get('/api/articles?sort_by=votes')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toBeSortedBy('votes', {descending: "true"})
+            })
+        })
+        test("400 - cannot be sorted by a property that is not listed in the model's green list (SQL injection protection)", () => {
+            return request(app).get('/api/articles?sort_by=potatoes')
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - invalid sort_by query value")
+            })
+        }) 
+    })
+    describe("GET /api/articles?order=:order", () => {
+        test("order query can be set to set to ascending", () => {
+            return request(app).get('/api/articles?order=asc')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toBeSortedBy('created_at', {ascending: "true"})
+            })
+        })
+        test("order query can be set to set to descending", () => {
+            return request(app).get('/api/articles?order=desc')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toBeSortedBy('created_at', {descending: "true"})
+            })
+        })
+        test("400 - order query must be either asc or desc (SQL injection protection)", () => {
+            return request(app).get('/api/articles?order=potatoes')
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - invalid order query")
+            })
+        })
+        test("order query (asc) can be combined with a sort_by query", () => {
+            return request(app).get('/api/articles?sort_by=topic&order=asc')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toBeSortedBy('topic', {ascending: "true"})
+            })
+        })
+        test("order query (desc) can be combined with a sort_by query", () => {
+            return request(app).get('/api/articles?sort_by=title&order=desc')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toBeSortedBy('title', {descending: "true"})
+            })
+        })
+    })
+
     describe("GET /api/articles?topic=:topic", () => {
         test("filters articles by the topic value specified in the query", () => {
             return request(app).get('/api/articles?topic=cats')
@@ -179,7 +268,6 @@ describe("app.js", () => {
                 expect(body.articles).toEqual([])
             })
         })
-    })
     })
     describe("GET /api/articles/:article_id/comments", () => {
         test("responds with an array of all comments that have a matching article_id", () => {
