@@ -107,3 +107,16 @@ exports.updateComment = async (inc_votes, comment_id) => {
     `, [inc_votes, comment_id])
     return comment.rows[0]
 }
+
+exports.addArticle = async (author, title, body, topic, article_img_url) => {
+    const article = await db.query(`
+    INSERT INTO articles
+    (author, title, body, topic, article_img_url)
+    VALUES
+    ($1, $2, $3, $4, $5)
+    RETURNING *
+    `, [author, title, body, topic, article_img_url])
+    const newArticleId = article.rows[0].article_id
+    const articleInfo = await this.fetchArticleById(newArticleId)
+    return articleInfo
+}

@@ -26,6 +26,10 @@ app.use((err, req, res, next) => {
             res.status(400).send({msg: "Bad Request - user does not exist"})
         } else if (err.constraint === 'comments_article_id_fkey') {
             res.status(404).send({msg: "Not Found - article_id does not exist"})
+        } else if (err.constraint === 'articles_topic_fkey') {
+            res.status(400).send({msg: "Bad Request - topic does not exist"})
+        } else if (err.constraint === 'articles_author_fkey') {
+            res.status(400).send({msg: "Bad Request - author does not exist"})    
         } else {
             next(err)
         }
@@ -43,6 +47,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+        console.log(err)
         res.status(500).send({msg: "Internal Server Error"})
 });
 

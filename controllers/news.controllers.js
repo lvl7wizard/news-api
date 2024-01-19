@@ -1,4 +1,4 @@
-const { fetchTopics, fetchEndpoints, fetchArticleById, fetchArticles, fetchCommentsByArticleId, fetchUsers, addComment, updateArticle, removeCommentById, fetchUserById, updateComment } = require('../models/news.models')
+const { fetchTopics, fetchEndpoints, fetchArticleById, fetchArticles, fetchCommentsByArticleId, fetchUsers, addComment, updateArticle, removeCommentById, fetchUserById, updateComment, addArticle } = require('../models/news.models')
 const { checkArticleIdExists, checkCommentIdExists, checkTopicExists, checkUserExists } = require('../utils/utils')
 
 exports.getTopics = async (req, res, next) => {
@@ -129,5 +129,20 @@ exports.patchComment = async (req, res, next) => {
     }
     catch(err) {
         next(err)
+    }
+}
+
+exports.postArticle = async (req, res, next) => {
+    try {
+        const { author } = req.body;
+        const { title } = req.body;
+        const { body } = req.body;
+        const { topic } = req.body;
+        const { article_img_url } = req.body;
+        const article = await addArticle(author, title, body, topic, article_img_url);
+        res.status(201).send({article: article});
+    }
+    catch(err) {
+        next(err);
     }
 }

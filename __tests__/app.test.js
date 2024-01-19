@@ -586,4 +586,95 @@ describe("app.js", () => {
             })
         })
     })
+    describe("POST /api/articles", () => {
+        test("responds with the posted article + comment_count", () => {
+            return request(app).post('/api/articles')
+            .expect(201)
+            .send({
+                author: "rogersop",
+                title: "Test Title",
+                body: "Test Body",
+                topic: "paper",
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            })
+            .then(({body}) => {
+                console.log(body)
+                expect(body.article).toEqual(expect.objectContaining({
+                    author: "rogersop",
+                    title: "Test Title",
+                    body: "Test Body",
+                    topic: "paper",
+                    article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                    article_id: expect.any(Number),
+                    votes: 0,
+                    created_at: expect.any(String),
+                    comment_count: 0
+                }))
+            })   
+        })
+        test("article is added to the database", () => {
+            return db.query('SELECT * FROM articles')
+            .then((articles) => {
+                const originalArticlesLength = articles.rows.length
+                return request(app).post('/api/articles')
+                .expect(201)
+                .send({
+                    author: "rogersop",
+                    title: "Test Title",
+                    body: "Test Body",
+                    topic: "paper",
+                    article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+                })
+                .then(() => {
+                    return db.query('SELECT * FROM articles')
+                }).then((alteredArticles) => {
+                    const alteredArticlesLength = alteredArticles.rows.length
+                    expect(alteredArticlesLength).toEqual(originalArticlesLength + 1)
+                })  
+            })
+        })
+        test("responds with an error if invalid topic is given", () => {
+            return request(app).post('/api/articles')
+            .send({
+                author: "rogersop",
+                title: "Test Title",
+                body: "Test Body",
+                topic: "Cats",
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - topic does not exist")
+            })   
+        })
+        test("responds with an error if invalid author is given", () => {
+            return request(app).post('/api/articles')
+            .send({
+                author: "lvl7wizard",
+                title: "Test Title",
+                body: "Test Body",
+                topic: "paper",
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - author does not exist")
+            })   
+        })
+        test("article_img_url defaults to null if not provided", () => {
+            return request(app).post('/api/articles')
+            .send({
+                author: "rogersop",
+                title: "Test title",
+                body: "Test Body",
+                topic: "paper"
+            })
+            .expect(201)
+            .then(({body}) => {
+                expect(body.article).toEqual(expect.objectContaining({
+                    article_img_url: null
+                }))
+            })   
+        })
+    })
 })
