@@ -382,7 +382,7 @@ describe("app.js", () => {
             })
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toEqual("Bad Request - body must contain valid username and body keys")
+                expect(body.msg).toEqual("Bad Request - request body must contain all required keys")
             })
         })
     })
@@ -441,7 +441,7 @@ describe("app.js", () => {
             })
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toEqual("Bad Request - body must contain a valid inc_votes key")
+                expect(body.msg).toEqual("Bad Request - request body must contain all required keys")
             })
         })
     })
@@ -574,7 +574,7 @@ describe("app.js", () => {
             .expect(400)
             .send({ votes: 1})
             .then(({body}) => {
-                expect(body.msg).toEqual("Bad Request - body must contain a valid inc_votes key")
+                expect(body.msg).toEqual("Bad Request - request body must contain all required keys")
             })
         })
         test("404 - responds with an error if comment_id does not exist", () => {
@@ -598,7 +598,6 @@ describe("app.js", () => {
                 article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
             })
             .then(({body}) => {
-                console.log(body)
                 expect(body.article).toEqual(expect.objectContaining({
                     author: "rogersop",
                     title: "Test Title",
@@ -674,6 +673,58 @@ describe("app.js", () => {
                 expect(body.article).toEqual(expect.objectContaining({
                     article_img_url: null
                 }))
+            })   
+        })
+        test("request body must have all required keys (author)", () => {
+            return request(app).post('/api/articles')
+            .send({
+                atter: "rogersop",
+                title: "Test title",
+                body: "Test Body",
+                topic: "paper"
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - request body must contain all required keys")
+            })   
+        })
+        test("request body must have all required keys (title)", () => {
+            return request(app).post('/api/articles')
+            .send({
+                author: "rogersop",
+                tatle: "Test title",
+                body: "Test Body",
+                topic: "paper"
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - request body must contain all required keys")
+            })   
+        })
+        test("request body must have all required keys (body)", () => {
+            return request(app).post('/api/articles')
+            .send({
+                author: "rogersop",
+                tatle: "Test title",
+                budy: "Test Body",
+                topic: "paper"
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - request body must contain all required keys")
+            })   
+        })
+        test("request body must have all required keys (topic)", () => {
+            return request(app).post('/api/articles')
+            .send({
+                author: "rogersop",
+                tatle: "Test title",
+                budy: "Test Body",
+                tupic: "paper"
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - request body must contain all required keys")
             })   
         })
     })

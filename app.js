@@ -34,13 +34,7 @@ app.use((err, req, res, next) => {
             next(err)
         }
     } else if (err.code === '23502') {
-        if (err.column === 'votes') {
-            res.status(400).send({msg: "Bad Request - body must contain a valid inc_votes key"})           
-        } else if (err.column === 'author') {
-            res.status(400).send({msg: "Bad Request - body must contain valid username and body keys"})
-        } else {
-            next(err)
-        }
+        res.status(400).send({msg: "Bad Request - request body must contain all required keys"})
     } else {
         next(err)
     }
