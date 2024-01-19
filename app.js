@@ -1,21 +1,14 @@
 const express = require('express');
-const app = express();
-const { getTopics, getEndpoints, getArticlesById, getArticles, getCommentsByArticleId, getUsers, postComment, patchArticle, deleteComment } = require('./controllers/news.controllers')
-app.use(express.json())
+const apiRouter = require('./routes/api-router');
 
-app.get('/api/topics', getTopics);
-app.get('/api', getEndpoints);
-app.get('/api/articles', getArticles);
-app.get('/api/articles/:article_id', getArticlesById);
-app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
-app.get('/api/users', getUsers)
-app.post('/api/articles/:article_id/comments', postComment)
-app.patch('/api/articles/:article_id', patchArticle)
-app.delete('/api/comments/:comment_id', deleteComment)
+const app = express();
+app.use(express.json());
+
+app.use('/api', apiRouter);
 
 app.all('/*', (req, res) => {
     res.status(404).send({msg: "Not Found - endpoint does not exist"})
-})
+});
 
 app.use((err, req, res, next) => {
     if (err.status && err.msg) {
@@ -23,7 +16,7 @@ app.use((err, req, res, next) => {
     } else {
         next(err)
     }
-})
+});
 
 app.use((err, req, res, next) => {
     if (err.code === '22P02') {
@@ -47,11 +40,11 @@ app.use((err, req, res, next) => {
     } else {
         next(err)
     }
-})
+});
 
 app.use((err, req, res, next) => {
         console.log(err)
         res.status(500).send({msg: "Internal Server Error"})
-})
+});
 
-module.exports = app
+module.exports = app;
