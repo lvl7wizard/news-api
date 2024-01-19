@@ -96,3 +96,14 @@ exports.fetchUserById = async (username) => {
     const user = await db.query('SELECT * FROM users WHERE username = $1', [username])
     return user.rows[0]
 }
+
+exports.updateComment = async (inc_votes, comment_id) => {
+    const comment = await db.query(`
+    UPDATE comments
+    SET
+    votes = votes + $1
+    WHERE comment_id = $2
+    RETURNING *
+    `, [inc_votes, comment_id])
+    return comment.rows[0]
+}

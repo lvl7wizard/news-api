@@ -500,12 +500,11 @@ describe("app.js", () => {
             })
         })
     })
-    describe.only("GET /api/users/:username", () => {
+    describe("GET /api/users/:username", () => {
         test("returns a user object with username, avatar_url and name properties", () => {
             return request(app).get('/api/users/lurker')
             .expect(200)
             .then(({body}) => {
-                console.log(body)
                 expect(body.user).toEqual(expect.objectContaining({
                     username: "lurker",
                     name: 'do_nothing',
@@ -518,6 +517,72 @@ describe("app.js", () => {
             .expect(404)
             .then(({body}) => {
                 expect(body.msg).toEqual("Not Found - username does not exist")
+            })
+        })
+    })
+    describe("PATCH /api/comments/:comment_id", () => {
+        test("returns comment with updated votes property (increase votes)", () => {
+            return db.query('SELECT * FROM comments WHERE comment_id = 1')
+            .then((comment) => {
+                originalVotes = comment.rows[0].votes
+                return request(app).patch('/api/comments/1')
+                .expect(200)
+                .send({ inc_votes: 100 })
+                .then(({body}) => {
+                    expect(body.comment).toEqual(expect.objectContaining({
+                        comment_id: 1,
+                        votes: originalVotes + 100,
+                        created_at: expect.any(String),
+                        author: 'butter_bridge',
+                        body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+                        article_id: 9
+                    }))
+                })
+
+            })
+        })
+        test("returns comment with updated votes property (decrease votes)", () => {
+            return db.query('SELECT * FROM comments WHERE comment_id = 2')
+            .then((comment) => {
+                originalVotes = comment.rows[0].votes
+                return request(app).patch('/api/comments/2')
+                .expect(200)
+                .send({ inc_votes: -1 })
+                .then(({body}) => {
+                    expect(body.comment).toEqual(expect.objectContaining({
+                        comment_id: 2,
+                        votes: originalVotes - 1,
+                        created_at: expect.any(String),
+                        author: 'butter_bridge',
+                        body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+                        article_id: 1
+                    }))
+                })
+
+            })
+        })
+        test("400 - responds with an error if comment_id if not valid", () => {
+            return request(app).patch('/api/comments/potatoes')
+            .expect(400)
+            .send({ inc_votes: 1})
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - parametric endpoint must be a number")
+            })
+        })
+        test("400 - responds with an error if request body is invalid", () => {
+            return request(app).patch('/api/comments/1')
+            .expect(400)
+            .send({ votes: 1})
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - body must contain a valid inc_votes key")
+            })
+        })
+        test("404 - responds with an error if comment_id does not exist", () => {
+            return request(app).patch('/api/comments/7777')
+            .expect(404)
+            .send({ inc_votes: 1})
+            .then(({body}) => {
+                expect(body.msg).toEqual("Not Found - no comments with that comment_id exist")
             })
         })
     })
