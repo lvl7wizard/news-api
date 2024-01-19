@@ -500,4 +500,25 @@ describe("app.js", () => {
             })
         })
     })
+    describe.only("GET /api/users/:username", () => {
+        test("returns a user object with username, avatar_url and name properties", () => {
+            return request(app).get('/api/users/lurker')
+            .expect(200)
+            .then(({body}) => {
+                console.log(body)
+                expect(body.user).toEqual(expect.objectContaining({
+                    username: "lurker",
+                    name: 'do_nothing',
+                    avatar_url: 'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png'
+                }))
+            })
+        })
+        test("404 responds with an error if username does not exist", () => {
+            return request(app).get('/api/users/turtleman89')
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Not Found - username does not exist")
+            })
+        })
+    })
 })

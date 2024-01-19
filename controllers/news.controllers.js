@@ -1,5 +1,5 @@
-const { fetchTopics, fetchEndpoints, fetchArticleById, fetchArticles, fetchCommentsByArticleId, fetchUsers, addComment, updateArticle, removeCommentById } = require('../models/news.models')
-const { checkArticleIdExists, checkCommentIdExists, checkTopicExists } = require('../utils/utils')
+const { fetchTopics, fetchEndpoints, fetchArticleById, fetchArticles, fetchCommentsByArticleId, fetchUsers, addComment, updateArticle, removeCommentById, fetchUserById } = require('../models/news.models')
+const { checkArticleIdExists, checkCommentIdExists, checkTopicExists, checkUserExists } = require('../utils/utils')
 
 exports.getTopics = async (req, res, next) => {
     try {
@@ -104,5 +104,17 @@ exports.getUsers = async (req, res, next) => {
     }
     catch(err) {
         next(err)
+    }
+}
+
+exports.getUserById = async (req, res, next) => {
+    try {
+        const { username } = req.params;
+        const userExists = await checkUserExists(username);
+        const user = await fetchUserById(username);
+        res.status(200).send({user: user});
+    }
+    catch(err) {
+        next(err);
     }
 }
