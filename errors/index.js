@@ -1,3 +1,7 @@
+exports.handleInvalidEndpoints = (req, res) => {
+    res.status(404).send({msg: "Not Found - endpoint does not exist"})
+}
+
 exports.handleCustomErrors = (err, req, res, next) => {
         if (err.status && err.msg) {
             res.status(err.status).send({msg: err.msg})
