@@ -728,4 +728,43 @@ describe("app.js", () => {
             })   
         })
     })
+    describe("DELETE /api/articles/:article_id", () => {
+        test("responds with status 204 and no content", () => {
+            return request(app).delete('/api/articles/2')
+            .expect(204)
+            .then(({body}) => {
+                expect(body).toEqual({})
+            })
+        })
+        test("article is removed from database, all other articles are NOT deleted", () => {
+            return request(app).delete('/api/articles/2')
+            .expect(204)
+            .then(() => {
+                return db.query('SELECT * FROM articles WHERE article_id = 2')
+                .then(({rows}) => {
+                    expect(rows.length).toBe(0)
+                })
+                .then(() => {
+                    return db.query('SELECT * FROM articles')
+                    .then(({rows}) => {
+                        expect(rows.length).toBe(12)
+                    })
+                })
+            })
+        })
+        test("404 - responds with an error if no articles with a matching article_id are found", () => {
+            return request(app).delete('/api/articles/7777')
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Not Found - article_id does not exist")
+            })
+        })
+        test("400 - responds with an error if passed an invalid article_id i.e not a number", () => {
+            return request(app).delete('/api/articles/notanumber')
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request - parametric endpoint must be a number")
+            })
+        })
+    })
 })
