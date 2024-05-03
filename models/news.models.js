@@ -120,3 +120,9 @@ exports.addArticle = async (author, title, body, topic, article_img_url) => {
     const articleInfo = await this.fetchArticleById(newArticleId)
     return articleInfo
 }
+
+exports.removeArticleById = async (article_id) => {
+    await db.query(`
+    DELETE FROM articles
+    WHERE article_id = $1`, [article_id])
+}

@@ -174,5 +174,10 @@
     "description": "deletes a comment from the database. no content is returned",
     "queries": [],
     "exampleResponse": ""
+  },
+  "DELETE /api/articles/:comment_id": {
+    "description": "deletes an article from the database. no content is returned",
+    "queries": [],
+    "exampleResponse": ""
   }
 }
