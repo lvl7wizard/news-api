@@ -5,6 +5,9 @@ News API is a JavaScript-based Application Programming Interface (API) that enab
 ## Hosted Version
 I have hosted a version of this API online using Render: Cloud Application Hosting for Developers. You can view a list of endpoints which you can interact with via HTTP requests at https://news-app-mk4i.onrender.com/api. The live database is hosted separately with ElephantSQL.
 
+## Limitations
+Please note that as the API is hosted for free on Redner, it take upto a minute for the server to wake up if requests have not been made recently.
+
 ## Local Version Setup
 
 Follow the below steps to setup the API to run locally.
